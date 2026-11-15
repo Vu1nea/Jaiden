@@ -222,7 +222,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-*.csv
+RECIPENLG_dataset.csv
 
 .DS_STORE
 

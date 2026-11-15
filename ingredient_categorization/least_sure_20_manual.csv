@@ -1,0 +1,21 @@
+ingredient,tree_nut,peanut,dairy,gluten,egg,soy,fish,shellfish,sesame,meat,pork,beef,protein_source,unclear,maybe_tree_nut,maybe_peanut,maybe_dairy,maybe_gluten,maybe_egg,maybe_soy,maybe_fish,maybe_shellfish,maybe_sesame,maybe_meat,maybe_pork,maybe_beef,note
+soda,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,baking soda or soft drink?
+shell,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,pie shell or pasta shell?
+long,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,fragment; maybe long grain rice
+hearts,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,hearts of palm or artichoke hearts?
+Salad Supreme,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,brand seasoning; contents unknown
+multi-colored candies,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,contents unknown; check label
+cream-style,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,fragment; likely cream-style corn
+Angel,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,fragment; angel food cake or angel hair?
+jars Junior baby food,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,baby food type unclear
+meal,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,meal type unclear
+Tater,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,maybe tater tots
+Frango,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,chocolate mints; brand with milk
+Duncan,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,brand name unclear
+Chachere Cajun,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,brand seasoning unclear
+Swans,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,Swans Down is a wheat cake flour brand
+Miracle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,assumed Miracle Whip contains egg
+saifon,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,maybe saifun glass noodles
+Dill Sauce,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,type unclear
+chili,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,type unclear
+Chicken Tonight,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,brand sauce unclear
