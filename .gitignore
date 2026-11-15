@@ -227,3 +227,5 @@ RECIPENLG_dataset.csv
 .DS_STORE
 
 .vscode
+
+search.py
