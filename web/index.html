@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recipe Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="opening">
+    <div class="seeds" aria-hidden="true">
+      <svg class="seed--lg" style="left:6%;top:150px;width:88px" viewBox="0 0 100 100"><path d="M52 4c25 2 44 20 44 45 1 27-20 47-47 47C23 95 4 76 5 50 5 23 26 2 52 4z"/></svg>
+      <svg style="left:18%;top:330px;width:26px" viewBox="0 0 100 100"><path d="M48 3c27 0 49 21 48 48-1 26-23 46-49 45C22 95 3 74 4 49 6 23 23 3 48 3z"/></svg>
+      <svg class="seed--lg" style="left:11%;top:470px;width:54px" viewBox="0 0 100 100"><path d="M55 6c22 4 40 22 39 46-2 25-22 44-47 42C22 92 5 73 6 48 8 21 30 1 55 6z"/></svg>
+      <svg class="seed--lg" style="right:8%;top:120px;width:62px" viewBox="0 0 100 100"><path d="M46 5c28-2 50 18 49 46 0 26-21 45-48 44C21 94 4 74 5 49 6 24 22 7 46 5z"/></svg>
+      <svg style="right:16%;top:300px;width:20px" viewBox="0 0 100 100"><path d="M50 4c26 1 46 22 45 47-1 25-22 45-47 44C23 94 4 73 5 48 7 22 25 3 50 4z"/></svg>
+      <svg class="seed--lg" style="right:5%;top:420px;width:40px" viewBox="0 0 100 100"><path d="M53 5c24 3 43 22 41 47-2 24-22 43-46 42C23 93 5 74 6 50 7 24 28 2 53 5z"/></svg>
+      <svg class="seed--keep" style="left:46%;top:96px;width:22px" viewBox="0 0 100 100"><path d="M49 4c26 1 47 21 46 47-1 25-22 45-48 44C22 94 4 74 5 49 6 23 24 3 49 4z"/></svg>
+    </div>
+
+    <div class="container">
+      <div class="masthead">
+        <a class="wordmark" href="./">
+          <svg viewBox="0 0 18 28" aria-hidden="true"><path d="M9 28V8" stroke="#fb5e00" stroke-width="1.5" fill="none"/><path d="M9 17l-5-5M9 13l5-5" stroke="#fb5e00" stroke-width="1.5" fill="none"/><circle cx="9" cy="5" r="3.5" fill="#fb5e00"/><circle cx="3" cy="10.5" r="2.5" fill="#fb5e00"/><circle cx="15" cy="6.5" r="2.5" fill="#fb5e00"/></svg>
+          Recipe Search
+        </a>
+        <nav class="index-nav" aria-label="Main">
+          <ul>
+            <li><a href="./" aria-current="page">Search</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+          <span class="nav-status">Mock data · search-quality testing</span>
+        </nav>
+      </div>
+
+      <div class="hero">
+        <h1>Describe a dish. We'll find the recipe.</h1>
+        <form class="search" role="search" id="search-form">
+          <input id="q" name="q" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="spicy ground beef skillet meal" aria-label="Search recipes">
+          <button class="btn btn--search" type="submit">Search</button>
+        </form>
+        <ul class="parsed" id="parsed" hidden aria-label="How your query was read"></ul>
+        <div class="examples" id="examples" aria-label="Example queries"></div>
+        <p class="disclaimer">Tags are heuristic, not medical-grade. Always check the original recipe.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="section" aria-labelledby="results-heading">
+      <div class="ruled">
+        <h2 id="results-heading">Sample recipes</h2>
+        <ul class="legend" aria-label="Dot legend">
+          <li><i class="l-allergen"></i>allergen</li>
+          <li><i class="l-clean"></i>no allergen</li>
+          <li><i class="l-unknown"></i>unlabeled</li>
+        </ul>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <div class="grid" id="results"></div>
+    </section>
+
+    <details class="filtered" id="filtered" hidden>
+      <summary><span id="filtered-label">Filtered out</span><small>Recipes removed by your exclusions</small></summary>
+      <div class="grid" id="filtered-grid"></div>
+    </details>
+  </main>
+
+  <footer class="footer" id="about">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <h2>About</h2>
+          <p>A testing bench for semantic recipe search. Describe a dish in plain words, add exclusions like “no dairy”, and see what ranks, what gets filtered, and why.</p>
+        </div>
+        <div class="footer__col">
+          <h2>How filtering works</h2>
+          <p>Ranking is fuzzy; exclusions are exact. Every ingredient is labeled once, and a recipe is removed if any ingredient carries an excluded flag, or if an ingredient is unlabeled while you're excluding something.</p>
+        </div>
+        <div class="footer__col">
+          <h2>Data</h2>
+          <p>Recipes from <a href="https://recipenlg.cs.put.poznan.pl/" target="_blank" rel="noopener">RecipeNLG</a>. Currently showing a small mock set. Tags are heuristic, not medical-grade. Always check the original recipe.</p>
+        </div>
+      </div>
+      <div class="footer__wordmark" aria-hidden="true">Recipe Search</div>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
