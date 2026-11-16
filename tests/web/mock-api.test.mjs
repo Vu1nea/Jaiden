@@ -81,3 +81,45 @@ test("runSearch: results sorted by score and k limits", () => {
 test("fetchSearch: blank query rejects", async () => {
   await assert.rejects(fetchSearch("   "), /empty query/);
 });
+
+// --- final-review fixes ---
+import { readFileSync } from "node:fs";
+const MOCK = JSON.parse(readFileSync(new URL("../../web/mock/recipes.json", import.meta.url), "utf8"));
+
+test("parseQuery: trailing punctuation and brackets keep exclusion", () => {
+  assert.deepEqual(parseQuery("pasta without dairy.").exclude, ["dairy"]);
+  assert.equal(parseQuery("pasta without dairy.").semantic, "pasta");
+  assert.deepEqual(parseQuery("pasta, no dairy!").exclude, ["dairy"]);
+  assert.deepEqual(parseQuery("pasta (no dairy)").exclude, ["dairy"]);
+  assert.equal(parseQuery("pasta (no dairy)").semantic, "pasta");
+});
+
+test("parseQuery: w/o", () => {
+  const q = parseQuery("pasta w/o cheese");
+  assert.equal(q.semantic, "pasta");
+  assert.deepEqual(q.exclude, ["dairy"]);
+});
+
+test("parseQuery: and/or conjunctions", () => {
+  assert.deepEqual(parseQuery("no nuts and no dairy"), { raw: "no nuts and no dairy", semantic: "", exclude: ["tree_nut", "peanut", "dairy"], include: [] });
+  assert.deepEqual(parseQuery("without eggs or milk").exclude, ["egg", "dairy"]);
+  assert.deepEqual(parseQuery("no dairy and nuts").exclude, ["dairy", "tree_nut", "peanut"]);
+  assert.deepEqual(parseQuery("pasta without peanuts or tree nuts").exclude, ["peanut", "tree_nut"]);
+});
+
+test("runSearch: stopwords are not search tokens", () => {
+  const recipes = [recipe(20, "Pork and Ginger Dumplings", [ing("ginger")]), recipe(21, "Apple Crisp", [ing("apples")])];
+  assert.deepEqual(runSearch("no nuts and no dairy", recipes).results.map((x) => x.id).sort(), [20, 21]);
+});
+
+test("every built-in example query returns at least one result", () => {
+  for (const q of ["spicy ground beef skillet meal", "dim sum without peanut oil", "high-protein dinner, no dairy, no nuts"]) {
+    assert.ok(runSearch(q, MOCK).results.length > 0, q);
+  }
+});
+
+test("mock data: oats carry gluten (union of case-variant labels)", () => {
+  const oats = MOCK.flatMap((r) => r.ingredients).find((i) => i.name === "oats");
+  assert.ok(oats.flags.includes("gluten"));
+  assert.equal(runSearch("gluten-free breakfast bars", MOCK).results.some((r) => r.title.includes("Oat")), false);
+});

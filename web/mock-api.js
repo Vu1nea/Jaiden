@@ -14,16 +14,22 @@ const TERM_FLAGS = {
 };
 const FLAG_NAMES = new Set(Object.values(TERM_FLAGS).flat());
 
-const CLAUSE = /\b(?:without|no|free of)\s+([a-z' ]+?)(?=\s*,|\s+and\s|\s*$)/g;
+const TRIGGER = "(?:without|no|free of)";
+// A clause runs until punctuation (already turned into commas), end of query,
+// or " and/or <another trigger>". Its term may itself list items with and/or.
+const CLAUSE = new RegExp(`\\b${TRIGGER}\\s+([a-z' ]+?)(?=\\s*,|\\s+(?:and|or)\\s+${TRIGGER}\\b|\\s*$)`, "g");
 const SUFFIX = /\b([a-z]+)-free\b/g;
+const STOPWORDS = new Set(["and", "or", "with", "the", "for", "without"]);
 
 export function parseQuery(raw) {
-  const lower = raw.toLowerCase();
+  const text = raw.toLowerCase().replace(/\bw\/o\b/g, "without").replace(/[.!?;()[\]]/g, ",");
   const terms = [];
-  let semantic = lower.replace(CLAUSE, (_, t) => { terms.push(t.trim()); return " "; });
-  semantic = semantic.replace(SUFFIX, (_, t) => { terms.push(t); return " "; });
-  semantic = semantic.replace(/\s*,\s*(,\s*)*/g, ", ").replace(/\s+/g, " ")
-    .replace(/^[\s,]+|[\s,]+$/g, "");
+  let rest = text.replace(CLAUSE, (_, t) => { terms.push(...t.trim().split(/\s+(?:and|or)\s+/)); return ","; });
+  rest = rest.replace(SUFFIX, (_, t) => { terms.push(t); return ","; });
+  const semantic = rest.split(",")
+    .map((s) => s.trim().replace(/\s+/g, " "))
+    .filter((s) => s && !/^(?:and|or)$/.test(s))
+    .join(", ");
 
   const exclude = [];
   for (const t of terms) {
@@ -33,7 +39,7 @@ export function parseQuery(raw) {
 }
 
 function tokens(text) {
-  return [...new Set((text.toLowerCase().match(/[a-z]+/g) || []).filter((w) => w.length >= 3))];
+  return [...new Set((text.toLowerCase().match(/[a-z]+/g) || []).filter((w) => w.length >= 3 && !STOPWORDS.has(w)))];
 }
 
 function filterReason(recipe, exclude) {

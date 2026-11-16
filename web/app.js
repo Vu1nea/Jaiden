@@ -1,5 +1,8 @@
 import { fetchSearch, fetchSamples, parseQuery } from "./mock-api.js";
 import { renderCard } from "./card.js";
+import { createLatest } from "./latest.js";
+
+const latest = createLatest();
 
 const EXAMPLES = [
   "spicy ground beef skillet meal",
@@ -39,24 +42,28 @@ function renderGrid(target, recipes, opts = () => ({})) {
   target.replaceChildren(...recipes.map((r) => renderCard(r, opts(r))));
 }
 
-async function showSamples() {
+async function showSamples(token) {
   parsed.hidden = true;
   heading.textContent = "Sample recipes";
   status.textContent = "";
   filtered.hidden = true;
   try {
-    renderGrid(grid, await fetchSamples(12));
+    const samples = await fetchSamples(12);
+    if (!latest.isCurrent(token)) return;
+    renderGrid(grid, samples);
   } catch {
+    if (!latest.isCurrent(token)) return;
     grid.replaceChildren();
     status.textContent = "Couldn't load sample recipes. Try reloading.";
   }
 }
 
-async function runQuery(q) {
+async function runQuery(q, token) {
   renderParsed(parseQuery(q));
   status.textContent = "Searching…";
   try {
     const res = await fetchSearch(q);
+    if (!latest.isCurrent(token)) return;
     renderParsed(res.query);
     const n = res.results.length;
     heading.textContent = `${n} result${n === 1 ? "" : "s"}`;
@@ -68,6 +75,7 @@ async function runQuery(q) {
     filteredLabel.textContent = `Filtered out (${m})`;
     renderGrid(filteredGrid, res.filtered_out, (r) => ({ dimmed: true, reason: r.reason }));
   } catch {
+    if (!latest.isCurrent(token)) return;
     heading.textContent = "Results";
     grid.replaceChildren();
     filtered.hidden = true;
@@ -85,8 +93,9 @@ function setUrl(q) {
 function submit(q) {
   const clean = q.trim();
   setUrl(clean);
-  if (clean) runQuery(clean);
-  else showSamples();
+  const token = latest.next();
+  if (clean) runQuery(clean, token);
+  else showSamples(token);
 }
 
 form.addEventListener("submit", (e) => {

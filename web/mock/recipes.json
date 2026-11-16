@@ -312,7 +312,7 @@
   },
   {
     "id": 6,
-    "title": "Lemon Chicken Quinoa Bowl",
+    "title": "High-Protein Lemon Chicken Quinoa Dinner",
     "link": "https://www.food.com/recipe/lemon-chicken-quinoa-401122",
     "source": "Recipes1M",
     "ingredients": [
@@ -509,6 +509,7 @@
         "raw": "2 c. oats",
         "name": "oats",
         "flags": [
+          "gluten",
           "soy"
         ],
         "known": true
@@ -550,6 +551,7 @@
       }
     ],
     "flags": {
+      "gluten": 1,
       "soy": 1,
       "tree_nut": 1,
       "egg": 1,
