@@ -123,3 +123,20 @@ test("mock data: oats carry gluten (union of case-variant labels)", () => {
   assert.ok(oats.flags.includes("gluten"));
   assert.equal(runSearch("gluten-free breakfast bars", MOCK).results.some((r) => r.title.includes("Oat")), false);
 });
+
+// --- exclusion tags ---
+test("runSearch: selected tags merge with parsed exclusions", () => {
+  const r = runSearch("dumplings without peanut oil", DUMPLINGS, 100, ["pork", "peanut"]);
+  assert.deepEqual(r.query.exclude, ["peanut", "pork"]);
+  assert.equal(r.results.length, 0);
+  assert.equal(r.filtered_out.length, 2);
+});
+
+test("fetchSearch: tags alone are a valid search", async () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, json: async () => DUMPLINGS });
+  try {
+    const r = await fetchSearch("  ", { exclude: ["peanut"] });
+    assert.deepEqual(r.results.map((x) => x.id), [1]);
+  } finally { globalThis.fetch = realFetch; }
+});

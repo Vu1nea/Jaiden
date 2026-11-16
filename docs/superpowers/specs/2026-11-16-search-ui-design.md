@@ -77,7 +77,7 @@ Internal tool for testing search quality of Semantic Recipe Search (see README).
 
 ## API contract (for mock + real backend)
 
-`GET /api/search?q=<text>&k=100`
+`GET /api/search?q=<text>&exclude=<flag,flag>&k=100` — `exclude` holds flags picked from the UI tag selector (added 2026-11-16); they merge with exclusions parsed from `q`. `q` may be empty when `exclude` is set.
 
 ```json
 {

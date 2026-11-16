@@ -58,8 +58,12 @@ function filterReason(recipe, exclude) {
   return null;
 }
 
-export function runSearch(raw, recipes, k = 100) {
+export const TAG_FLAGS = ["tree_nut", "peanut", "dairy", "gluten", "egg", "soy", "fish", "shellfish", "sesame", "meat", "pork", "beef"];
+
+// extraExclude: flags picked from the tag selector, merged with exclusions parsed from the text.
+export function runSearch(raw, recipes, k = 100, extraExclude = []) {
   const query = parseQuery(raw);
+  for (const f of extraExclude) if (!query.exclude.includes(f)) query.exclude.push(f);
   const qTokens = tokens(query.semantic);
   const results = [];
   const filtered_out = [];
@@ -93,9 +97,10 @@ function loadRecipes() {
   return cache;
 }
 
-export async function fetchSearch(q, k = 100) {
-  if (!q || !q.trim()) throw new Error("empty query");
-  return runSearch(q, await loadRecipes(), k);
+export async function fetchSearch(q, { exclude = [], k = 100 } = {}) {
+  const text = (q || "").trim();
+  if (!text && !exclude.length) throw new Error("empty query");
+  return runSearch(text, await loadRecipes(), k, exclude);
 }
 
 export async function fetchSamples(n = 12) {

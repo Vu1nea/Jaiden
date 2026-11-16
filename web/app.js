@@ -1,4 +1,4 @@
-import { fetchSearch, fetchSamples, parseQuery } from "./mock-api.js";
+import { fetchSearch, fetchSamples, parseQuery, TAG_FLAGS } from "./mock-api.js";
 import { renderCard } from "./card.js";
 import { createLatest } from "./latest.js";
 
@@ -30,6 +30,37 @@ function chip(text, className) {
   return li;
 }
 
+// ---------- Exclude tags ----------
+const selected = new Set();
+const tagsEl = $("tags");
+const tagButtons = new Map();
+for (const flag of TAG_FLAGS) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tag";
+  b.textContent = label(flag);
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => {
+    if (selected.has(flag)) selected.delete(flag);
+    else selected.add(flag);
+    syncTags();
+    submit(input.value);
+  });
+  tagButtons.set(flag, b);
+  tagsEl.appendChild(b);
+}
+const clearTags = document.createElement("button");
+clearTags.type = "button";
+clearTags.className = "tags__clear";
+clearTags.textContent = "clear";
+clearTags.addEventListener("click", () => { selected.clear(); syncTags(); submit(input.value); });
+tagsEl.appendChild(clearTags);
+
+function syncTags() {
+  for (const [flag, b] of tagButtons) b.setAttribute("aria-pressed", String(selected.has(flag)));
+  clearTags.hidden = selected.size === 0;
+}
+
 function renderParsed(query) {
   const items = [];
   if (query.semantic) items.push(chip(`semantic: “${query.semantic}”`));
@@ -58,13 +89,12 @@ async function showSamples(token) {
   }
 }
 
-async function runQuery(q, token) {
+async function runQuery(q, exclude, token) {
   renderParsed(parseQuery(q));
   status.textContent = "Searching…";
   try {
-    const res = await fetchSearch(q);
+    const res = await fetchSearch(q, { exclude });
     if (!latest.isCurrent(token)) return;
-    renderParsed(res.query);
     const n = res.results.length;
     heading.textContent = `${n} result${n === 1 ? "" : "s"}`;
     status.textContent = n ? "" : "No recipes matched. Check the filtered-out list below.";
@@ -83,18 +113,21 @@ async function runQuery(q, token) {
   }
 }
 
-function setUrl(q) {
+function setUrl(q, exclude) {
   const url = new URL(location.href);
   if (q) url.searchParams.set("q", q);
   else url.searchParams.delete("q");
+  if (exclude.length) url.searchParams.set("x", exclude.join(","));
+  else url.searchParams.delete("x");
   history.replaceState(null, "", url);
 }
 
 function submit(q) {
   const clean = q.trim();
-  setUrl(clean);
+  const exclude = [...selected];
+  setUrl(clean, exclude);
   const token = latest.next();
-  if (clean) runQuery(clean, token);
+  if (clean || exclude.length) runQuery(clean, exclude, token);
   else showSamples(token);
 }
 
@@ -120,6 +153,9 @@ if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
   }, 4000);
 }
 
-const initial = new URL(location.href).searchParams.get("q") || "";
+const params = new URL(location.href).searchParams;
+const initial = params.get("q") || "";
+for (const f of (params.get("x") || "").split(",")) if (TAG_FLAGS.includes(f)) selected.add(f);
+syncTags();
 input.value = initial;
 submit(initial);

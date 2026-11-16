@@ -32,7 +32,6 @@
             <li><a href="./" aria-current="page">Search</a></li>
             <li><a href="#about">About</a></li>
           </ul>
-          <span class="nav-status">Mock data · search-quality testing</span>
         </nav>
       </div>
 
@@ -43,6 +42,9 @@
                  placeholder="spicy ground beef skillet meal" aria-label="Search recipes">
           <button class="btn btn--search" type="submit">Search</button>
         </form>
+        <div class="tags" id="tags" role="group" aria-label="Exclude ingredients">
+          <span class="tags__label">Exclude</span>
+        </div>
         <ul class="parsed" id="parsed" hidden aria-label="How your query was read"></ul>
         <div class="examples" id="examples" aria-label="Example queries"></div>
         <p class="disclaimer">Tags are heuristic, not medical-grade. Always check the original recipe.</p>
