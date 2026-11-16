@@ -1,0 +1,98 @@
+// Client-side stand-in for the search API. Returns the same JSON shape as the
+// planned GET /api/search and /api/samples so it can be swapped for fetch() later.
+
+const TERM_FLAGS = {
+  nut: ["tree_nut", "peanut"], nuts: ["tree_nut", "peanut"],
+  peanut: ["peanut"], peanuts: ["peanut"], "peanut oil": ["peanut"],
+  "tree nut": ["tree_nut"], "tree nuts": ["tree_nut"],
+  dairy: ["dairy"], milk: ["dairy"], cheese: ["dairy"],
+  gluten: ["gluten"], wheat: ["gluten"],
+  egg: ["egg"], eggs: ["egg"],
+  soy: ["soy"], fish: ["fish"],
+  shellfish: ["shellfish"], shrimp: ["shellfish"],
+  sesame: ["sesame"], meat: ["meat"], pork: ["pork"], beef: ["beef"],
+};
+const FLAG_NAMES = new Set(Object.values(TERM_FLAGS).flat());
+
+const CLAUSE = /\b(?:without|no|free of)\s+([a-z' ]+?)(?=\s*,|\s+and\s|\s*$)/g;
+const SUFFIX = /\b([a-z]+)-free\b/g;
+
+export function parseQuery(raw) {
+  const lower = raw.toLowerCase();
+  const terms = [];
+  let semantic = lower.replace(CLAUSE, (_, t) => { terms.push(t.trim()); return " "; });
+  semantic = semantic.replace(SUFFIX, (_, t) => { terms.push(t); return " "; });
+  semantic = semantic.replace(/\s*,\s*(,\s*)*/g, ", ").replace(/\s+/g, " ")
+    .replace(/^[\s,]+|[\s,]+$/g, "");
+
+  const exclude = [];
+  for (const t of terms) {
+    for (const f of TERM_FLAGS[t] || [t]) if (!exclude.includes(f)) exclude.push(f);
+  }
+  return { raw, semantic, exclude, include: [] };
+}
+
+function tokens(text) {
+  return [...new Set((text.toLowerCase().match(/[a-z]+/g) || []).filter((w) => w.length >= 3))];
+}
+
+function filterReason(recipe, exclude) {
+  for (const f of exclude.filter((x) => FLAG_NAMES.has(x))) {
+    const hit = recipe.ingredients.find((i) => i.flags.includes(f));
+    if (hit) return { ingredient: hit.name, flag: f };
+  }
+  for (const term of exclude.filter((x) => !FLAG_NAMES.has(x))) {
+    const hit = recipe.ingredients.find((i) => i.name.toLowerCase().includes(term));
+    if (hit) return { ingredient: hit.name, flag: "ingredient" };
+  }
+  if (exclude.length) {
+    const hit = recipe.ingredients.find((i) => !i.known);
+    if (hit) return { ingredient: hit.name, flag: "unknown" };
+  }
+  return null;
+}
+
+export function runSearch(raw, recipes, k = 100) {
+  const query = parseQuery(raw);
+  const qTokens = tokens(query.semantic);
+  const results = [];
+  const filtered_out = [];
+
+  for (const recipe of recipes) {
+    const haystack = new Set(tokens([recipe.title, ...recipe.ingredients.map((i) => i.name)].join(" ")));
+    const matched = qTokens.filter((t) => haystack.has(t));
+    if (qTokens.length && !matched.length) continue;
+    const score = qTokens.length ? Math.round((matched.length / qTokens.length) * 100) / 100 : 0;
+    const item = { ...recipe, score, why: { matched_terms: matched, passed_filters: query.exclude } };
+    const reason = filterReason(recipe, query.exclude);
+    if (reason) filtered_out.push({ ...item, reason });
+    else results.push(item);
+  }
+
+  const order = qTokens.length
+    ? (a, b) => b.score - a.score || a.title.localeCompare(b.title)
+    : (a, b) => a.title.localeCompare(b.title);
+  results.sort(order);
+  filtered_out.sort(order);
+  return { query, results: results.slice(0, k), filtered_out };
+}
+
+let cache = null;
+function loadRecipes() {
+  if (!cache) {
+    cache = fetch(new URL("./mock/recipes.json", import.meta.url))
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .catch((e) => { cache = null; throw e; });
+  }
+  return cache;
+}
+
+export async function fetchSearch(q, k = 100) {
+  if (!q || !q.trim()) throw new Error("empty query");
+  return runSearch(q, await loadRecipes(), k);
+}
+
+export async function fetchSamples(n = 12) {
+  const recipes = await loadRecipes();
+  return recipes.slice(0, n).map((r) => ({ ...r, score: 0, why: { matched_terms: [], passed_filters: [] } }));
+}
