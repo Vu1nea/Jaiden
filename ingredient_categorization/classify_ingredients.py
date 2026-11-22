@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn cached Jev probabilities into flags and write the CSV outputs. Never calls the API.
 
-Reads labeled/batch_*.json (written by label_ingredients.py) plus the hand-labeled batches in
+Reads labeled/batch_*.json (written by label_ingredients.py) plus the Claude Haiku-labeled batches in
 labeled_manual/, applies the thresholds below, and writes the combined lookup table.
 
 Usage (from this folder):
@@ -10,7 +10,7 @@ Usage (from this folder):
 
 Outputs:
   labeled_ingredients.csv       combined lookup table (28 columns, 0/1 flags)
-  ingredient_scores.csv         raw Jev probability per flag; blank for hand-labeled/Gemini rows
+  ingredient_scores.csv         raw Jev probability per flag; blank for Haiku/Gemini rows
   least_sure_20.csv             20 Jev rows whose least-decided flag is closest to 0.5
 """
 import argparse
@@ -29,7 +29,7 @@ SCORES = HERE / "ingredient_scores.csv"
 
 # Jev answers each yes/no question with a probability. Probability >= T_DEFINITE sets the
 # flag; T_MAYBE <= p < T_DEFINITE sets the maybe_ twin (definite flags only). Tune on the
-# hand-labeled batches; raw probabilities are cached so re-thresholding needs no API calls.
+# the Haiku-labeled batches; raw probabilities are cached so re-thresholding needs no API calls.
 T_DEFINITE = 0.85
 T_MAYBE = 0.35
 
@@ -64,7 +64,7 @@ def combine(t_definite=T_DEFINITE, t_maybe=T_MAYBE):
     if missing:
         print(f"warning: {len(missing)} batches not labeled yet (first few: {missing[:5]})", file=sys.stderr)
 
-    # Hand-labeled batches take precedence; Jev cache fills the rest, in source order.
+    # Haiku-labeled batches take precedence; Jev cache fills the rest, in source order.
     out_rows = []     # CSV rows, 28 columns
     score_rows = []   # [ingredient] + 14 probabilities, blank when the row has none
     jev_probs = []    # (item, probs) for the least-sure review

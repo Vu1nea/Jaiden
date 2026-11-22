@@ -2,7 +2,7 @@
 """Label every unique RecipeNLG ingredient string with TypeSafe Jev, in batches. This is the only script that calls the API.
 
 Resumable: each batch's raw Jev probabilities are cached in labeled/ and skipped on re-run.
-Batches already hand-labeled in labeled_manual/ are skipped. Turning probabilities into flags and
+Batches already labeled by Claude Haiku in labeled_manual/ are skipped. Turning probabilities into flags and
 CSVs is classify_ingredients.py's job.
 
 Usage (from this folder):
@@ -27,7 +27,7 @@ HERE = Path(__file__).resolve().parent
 SRC = HERE / "unique_values.csv"
 CACHE = HERE / "labeled"
 
-MANUAL = HERE / "labeled_manual"  # hand-labeled batches; same 28-column schema, never re-sent to the API
+MANUAL = HERE / "labeled_manual"  # Claude Haiku-labeled batches (via Claude Code); same 28-column schema, never re-sent to the API
 
 MODEL = "jev-latest"  # pin e.g. "jev-1.14.0" once thresholds below are tuned
 BATCH = 200
